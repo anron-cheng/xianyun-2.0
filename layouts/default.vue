@@ -24,6 +24,7 @@ export default {
 </script>
 
 <style lang="less">
+@import 'http://at.alicdn.com/t/font_1469009_mu9hyd36uj8.css';
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -48,7 +49,7 @@ a{
   color:inherit;
 }
 a:hover{
-
+  border: none;
 }
 em,i{
   font-style: normal;
