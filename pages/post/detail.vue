@@ -8,42 +8,22 @@
             <a href="javascript:;">旅游攻略</a> /
             <a href="javascript:;">攻略详情</a>
           </div>
-          <h1>塞班贵？一定是你的打开方式不对！6000块玩转塞班</h1>
-          <div class="clearfix">
-            <div class="publishTime">
-              <span>攻略： 2019-05-22 10:57</span>
-              <span>阅读： 8561</span>
+          <div v-show="valve">
+            <h1>{{post.title}}</h1>
+            <div class="clearfix">
+              <div class="publishTime">
+                <span>攻略： {{postCreatedTime}}</span>
+                <span>阅读： {{post.watch}}</span>
+              </div>
             </div>
-          </div>
-          <div class="content">
-            大家对塞班岛总存在着这样的误解，知道它是美属地盘，就理所当然地觉得这里的花费一定很高，
-            花费高有高的玩法，那如果只有6000块的预算呢？要怎么玩？关于旅行这件事，我们要让钱花
-            得更有道理，收下这份攻略，带你6000块花式玩转塞班。
-            <img
-              src="@/static/3.jpg"
-              alt
-            />
-            大家对塞班岛总存在着这样的误解，知道它是美属地盘，就理所当然地觉得这里的花费一定很高，
-            花费高有高的玩法，那如果只有6000块的预算呢？要怎么玩？关于旅行这件事，我们要让钱花
-            得更有道理，收下这份攻略，带你6000块花式玩转塞班。
-            <img
-              src="@/static/3.jpg"
-              alt
-            />
-            大家对塞班岛总存在着这样的误解，知道它是美属地盘，就理所当然地觉得这里的花费一定很高，
-            花费高有高的玩法，那如果只有6000块的预算呢？要怎么玩？关于旅行这件事，我们要让钱花
-            得更有道理，收下这份攻略，带你6000块花式玩转塞班。
-            <img
-              src="@/static/3.jpg"
-              alt
-            />
+            <div class="content" v-html="post.content"></div>
           </div>
           <div class="userNav">
             <div class="userNav_content">
               <span class="iconfont icon-pinglun"></span>
-              <span>评论(205)</span>
+              <span>评论({{commentTotal}})</span>
             </div>
-            <div class="userNav_content">
+            <div class="userNav_content" @click="userFollow">
               <span class="iconfont icon-shoucang1"></span>
               <span>收藏</span>
             </div>
@@ -51,55 +31,259 @@
               <span class="iconfont icon-fenxiang"></span>
               <span>分享</span>
             </div>
-            <div class="userNav_content">
+            <div class="userNav_content" @click="userLike">
               <span class="iconfont icon-zan1"></span>
-              <span>点赞(205)</span>
+              <span>点赞({{post.like}})</span>
             </div>
           </div>
-          <div class="write_comment">
-            <h3>评论</h3>
-            <div class="comment_case">
-              <textarea style="resize:none;width:100%;height:60px;border-radius: 10px;padding:5px 20px;"></textarea>
-            </div>
+
+          <h3>评论</h3>
+
+          <el-form :model="form" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="评论内容">
+              <el-input
+                type="textarea"
+                :placeholder="commentFrom.userName? `回复：@${commentFrom.userName}`:''"
+                v-model="form.content"
+              ></el-input>
+              <button class="cancelReply" v-if="commentFrom.userName" @click="cancelReply">取消回复</button>
+            </el-form-item>
+
+            <!-- 上传文件 -->
+            <el-form-item class="uploadPicture" label="图片内容">
+              <el-upload
+                :action="`${$axios.defaults.baseURL}/upload`"
+                name="files"
+                list-type="picture-card"
+                :file-list="form.cover"
+                :on-success="handleAvatarSuccess"
+                :on-remove="handleRemove"
+              >
+                <i class="el-icon-plus"></i>
+              </el-upload>
+              <el-dialog :visible.sync="dialogVisible">
+                <img width="100%" :src="dialogImageUrl" alt />
+              </el-dialog>
+            </el-form-item>
+
+            <el-form-item class="submit">
+              <el-button type="primary" @click="submitForm">提交</el-button>
+            </el-form-item>
+          </el-form>
+
+          <div class="commentBox">
+            <!-- 评论组件 -->
+
+            <comment
+              v-for="(item,index) in PostComment"
+              :key="index"
+              :commentData="item"
+              @pushCommentId="getCommentId"
+            ></comment>
           </div>
-          <div class="send_comment clearfix">
-            <el-upload
-              class="avatar-uploader send_picture"
-              action="https://jsonplaceholder.typicode.com/posts/"
-              :show-file-list="false"
-              :on-success="handleAvatarSuccess"
-            >
-              <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-            </el-upload>
-            <button class="btn">提交</button>
+          <div class="book">
+            <!-- 分页 -->
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="1"
+              :page-sizes="[2, 4, 6, 8]"
+              :page-size="100"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="commentTotal"
+            ></el-pagination>
           </div>
-          <comment></comment>
         </div>
       </el-col>
       <!-- 内容右边部分 -->
-      <el-col :span="7">
-        <div class="grid-content bg-purple-light bodyRight"></div>
+      <el-col :span="7" v-show="valve">
+        <rightSizeNav></rightSizeNav>
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
-import comment from '@/components/post/comment.vue'
+import comment from "@/components/post/comment.vue";
+import moment from "moment";
+import rightSizeNav from "@/components/post/rightSizeNav.vue";
 export default {
-  components:{
-    comment
+  components: {
+    comment,
+    rightSizeNav
   },
   data() {
     return {
-      imageUrl: ""
+      imageUrl: "",
+      // 阀门
+      valve: false,
+      // 用户是否登录
+      isLogin: false,
+      // 文章详情数据
+      post: {
+        cityName: ""
+      },
+      // 文章创建时间
+      postCreatedTime: "",
+      // 评论数量
+      commentTotal: 0,
+      // 条数
+      pageSize: 2,
+      // 分页
+      pageIndex: 0,
+      // 评论全部内容
+      PostComment: [],
+      // 评论ID
+      commentFrom: {},
+      // 评论表单
+      form: {
+        content: "",
+        cover: []
+      },
+      dialogImageUrl: "",
+      dialogVisible: false,
+      // 图片上传数组
+      picture: []
     };
   },
   methods: {
+    // 取消回复对象
+    cancelReply() {
+      this.commentFrom = {};
+      this.form.content = "";
+    },
+    // 发表评论
+    submitForm() {
+      this.$axios({
+        url: "/comments",
+        method: "POST",
+        data: {
+          content: this.form.content,
+          post: this.post.id,
+          pics: this.picture,
+          follow: this.commentFrom.id
+        },
+        headers: {
+          Authorization: `Bearer ${this.$store.state.user.userInfo.token}`
+        }
+      }).then(res => {
+        if (res.status == 200) {
+          this.$message.success(res.data.message);
+          this.commentFrom = {};
+          this.form.content = "";
+          this.picture = [];
+          this.getPostComment();
+        }
+      });
+    },
+    // 获取评论ID
+    getCommentId(commentFrom) {
+      this.commentFrom = commentFrom;
+      console.log(this.commentFrom);
+    },
+    // 上传文件成功
     handleAvatarSuccess(res, file) {
       this.imageUrl = URL.createObjectURL(file.raw);
+      this.picture.push(res[0]);
     },
+    handleRemove(file, fileList) {
+      this.picture = file;
+    },
+    // 检查用户是否登录
+    userIslogin() {
+      if (!this.isLogin) {
+        this.$message.warning("请首先登录");
+        setTimeout(() => {
+          this.$router.push("/");
+        }, 1000);
+      }
+    },
+    // 点击关注
+    async userFollow() {
+      await this.userIslogin();
+      const res = this.$axios(
+        await {
+          url: "/posts/star",
+          params: this.$route.query,
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.$store.state.user.userInfo.token}`
+          }
+        }
+      );
+    },
+    // 点击点赞
+    async userLike() {
+      await this.userIslogin();
+      const res = this.$axios(
+        await {
+          url: "/posts/like",
+          params: this.$route.query,
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.$store.state.user.userInfo.token}`
+          }
+        }
+      );
+    },
+    handleSizeChange(val) {
+      this.pageSize = val;
+      this.getPostComment();
+    },
+    handleCurrentChange(val) {
+      this.pageIndex = val - 1;
+      this.getPostComment();
+    },
+    async getPostComment() {
+      // 获取评论数据
+      const res = await this.$axios({
+        url: `/posts/comments?post=${this.post.id}&_start=${this.pageIndex}&_limit=${this.pageSize}`,
+        method: "GET"
+      });
+      const data = res.data;
+      this.commentTotal = data.total;
+      this.PostComment = data.data;
+      console.log(this.PostComment,'123');
+      
+    },
+    async getPostData() {
+      // 获取文章内容
+
+      const res = await this.$axios({
+        url: "/posts",
+        params: this.$route.query,
+        method: "GET"
+      });
+
+      if (res.status == 200) {
+        const { data } = res.data;
+        this.post = data[0];
+
+        this.postCreatedTime = moment(this.post.created_at).format(
+          `YYYY-MM-DD`
+        );
+        if (!this.post.like) this.post.like = 0;
+
+        // 检查用户是否登录
+        const { userInfo } = this.$store.state.user;
+        if (userInfo.token) this.isLogin = true;
+      }
+
+      this.getPostComment();
+      this.valve = true;
+    }
+  },
+   mounted() {
+    // 获取文章内容
+    this.getPostData()
+  },
+  watch: {
+    $route: {
+      deep: true,
+      handler() {
+        this.getPostData()
+      }
+    }
   }
 };
 </script>
@@ -131,9 +315,13 @@ export default {
       }
     }
     .content {
-      > img {
+      width: 100%;
+      /deep/ p {
+        line-height: 25px;
+      }
+      /deep/ img {
+        max-width: 698px;
         padding: 10px 0;
-        width: 100%;
       }
     }
     .userNav {
@@ -142,7 +330,7 @@ export default {
         padding: 0 13px;
         :first-child {
           color: #ffaa0d;
-          font-size: 45px;
+          font-size: 40px;
         }
         :last-child {
           display: block;
@@ -153,20 +341,14 @@ export default {
       padding: 50px 0 35px 0;
       text-align: center;
     }
-    .write_comment {
-      .comment_case {
-        padding-top: 15px;
-        width: 100%;
-      }
-    }
-    .send_comment{
-      margin-top: 10px;
-      .send_picture{
+    .send_comment {
+      margin: 10px 0;
+      .send_picture {
         float: left;
       }
-      .btn{
+      .btn {
         float: right;
-        background-color:#409EFF;
+        background-color: #409eff;
         width: 60px;
         height: 30px;
         border: none;
@@ -181,6 +363,11 @@ export default {
     background-color: red;
   }
 
+  .commentBox {
+    border: 1px solid #999;
+    border-bottom: none;
+    margin-bottom: 20px;
+  }
   .clearfix:after {
     content: "";
     display: block;
@@ -192,31 +379,28 @@ export default {
     *zoom: 1;
   }
 }
-
-// element样式
-  .avatar-uploader .el-upload {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-  }
-  .avatar-uploader .el-upload:hover {
-    border-color: #409EFF;
-  }
-  .avatar-uploader-icon {
-    font-size: 28px;
-    border: 1px dashed #999;
-    background-color: #fbfdff;
-    color: #8c939d;
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
-    text-align: center;
-  }
-  .avatar {
-    width: 178px;
-    height: 178px;
-    display: block;
-  }
+.cancelReply {
+  background-color: #409eff;
+  color: white;
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+}
+/deep/ .el-textarea__inner {
+  resize: none;
+}
+.uploadPicture {
+  display: inline-block;
+  width: 500px;
+}
+.submit {
+  display: inline-block;
+}
+.book {
+  text-align: center;
+  margin-bottom: 40px;
+}
 </style>
