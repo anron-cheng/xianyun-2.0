@@ -106,7 +106,6 @@ export default {
       const {data} = res.data
       this.total = res.data.total
       this.postList = data
-      console.log(data)
     })
   },
   handleSizeChange(val) {

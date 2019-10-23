@@ -5,8 +5,10 @@
       <el-col :span="17">
         <div class="grid-content bg-purple bodyLeft">
           <div class="bread">
-            <a href="javascript:;">旅游攻略</a> /
-            <a href="javascript:;">攻略详情</a>
+              <el-breadcrumb separator="/">
+                <el-breadcrumb-item :to="{ path: '/post' }">旅游攻略</el-breadcrumb-item>
+                <el-breadcrumb-item><a href="/">攻略详情</a></el-breadcrumb-item>
+              </el-breadcrumb>
           </div>
           <div v-show="valve">
             <h1>{{post.title}}</h1>
@@ -24,7 +26,7 @@
               <span>评论({{commentTotal}})</span>
             </div>
             <div class="userNav_content" @click="userFollow">
-              <span class="iconfont icon-shoucang1"></span>
+              <span class="iconfont " :class="clickFollow ? 'icon-shoucang':'icon-shoucang1'"></span>
               <span>收藏</span>
             </div>
             <div class="userNav_content">
@@ -32,7 +34,7 @@
               <span>分享</span>
             </div>
             <div class="userNav_content" @click="userLike">
-              <span class="iconfont icon-zan1"></span>
+              <span class="iconfont" :class="clickLike ? 'icon-zan':'icon-zan1'"></span>
               <span>点赞({{post.like}})</span>
             </div>
           </div>
@@ -43,6 +45,7 @@
             <el-form-item label="评论内容">
               <el-input
                 type="textarea"
+                @keyup.enter="submitForm"
                 :placeholder="commentFrom.userName? `回复：@${commentFrom.userName}`:''"
                 v-model="form.content"
               ></el-input>
@@ -117,6 +120,10 @@ export default {
       imageUrl: "",
       // 阀门
       valve: false,
+      // 用户点赞
+      clickLike:false,
+      // 用户收藏
+      clickFollow:false,
       // 用户是否登录
       isLogin: false,
       // 文章详情数据
@@ -154,6 +161,7 @@ export default {
     },
     // 发表评论
     submitForm() {
+      if(!this.isLogin) return this.userIslogin()
       this.$axios({
         url: "/comments",
         method: "POST",
@@ -179,7 +187,6 @@ export default {
     // 获取评论ID
     getCommentId(commentFrom) {
       this.commentFrom = commentFrom;
-      console.log(this.commentFrom);
     },
     // 上传文件成功
     handleAvatarSuccess(res, file) {
@@ -191,15 +198,15 @@ export default {
     },
     // 检查用户是否登录
     userIslogin() {
-      if (!this.isLogin) {
         this.$message.warning("请首先登录");
         setTimeout(() => {
           this.$router.push("/");
         }, 1000);
-      }
     },
     // 点击关注
     async userFollow() {
+      if(!this.isLogin) return this.userIslogin()
+      this.clickFollow =true
       await this.userIslogin();
       const res = this.$axios(
         await {
@@ -214,6 +221,8 @@ export default {
     },
     // 点击点赞
     async userLike() {
+      if(!this.isLogin) return this.userIslogin()
+      this.clickLike = true
       await this.userIslogin();
       const res = this.$axios(
         await {
@@ -243,7 +252,6 @@ export default {
       const data = res.data;
       this.commentTotal = data.total;
       this.PostComment = data.data;
-      console.log(this.PostComment,'123');
       
     },
     async getPostData() {
@@ -297,6 +305,7 @@ export default {
     padding-right: 10px;
     .bread {
       font-size: 14px;
+      margin-bottom: 5px;
       :first-child {
         font-weight: 600;
       }
