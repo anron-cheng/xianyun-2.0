@@ -91,6 +91,11 @@ export default {
   },
   methods: {
     handleSave(index) {
+      if (!this.$store.state.user.userInfo.token) {
+        this.$message.error("请登录后再写游记");
+        this.$router.push("/user/login");
+        return;
+      }
       const arr = this.$store.state.draft.draftHistory;
       arr.forEach((item, index) => {
         if (item.title === this.draftList.title) {
@@ -123,7 +128,6 @@ export default {
         .locale("zh-cn")
         .format("YYYY-MM-DD");
       this.draftList.time = now;
-      console.log(this.draftList);
       const goods = { ...this.draftList };
       if (valid != false) {
         this.$store.commit("draft/setHistory", goods);
@@ -135,7 +139,18 @@ export default {
     handlePublish() {
       var quill = this.$refs.vueEditor.editor;
       this.draftList.content = quill.root.innerHTML;
-      console.log(this.draftList);
+      if (!this.draftList.title) {
+        this.$message.error("标题不能为空");
+        return;
+      }
+      if (quill.root.innerHTML === "<p><br></p>") {
+        this.$message.error("内容不能为空");
+        return;
+      }
+      if (!this.draftList.city) {
+        this.$message.error("城市不能为空");
+        return;
+      }
 
       this.$axios({
         url: "/posts",
@@ -151,20 +166,21 @@ export default {
           this.draftList.title = "";
           this.draftList.city = "";
           quill.root.innerHTML = "";
+          this.$router.push(`/post/detail?id=${data.id}`);
         }
       });
     },
     handleEdit(index) {
       this.draftList.title = this.$store.state.draft.draftHistory[index].title;
       this.draftList.city = this.$store.state.draft.draftHistory[index].city;
-      var now = moment()
-        .locale("zh-cn")
-        .format("YYYY-MM-DD");
-      this.draftList.time = now;
       var quill = this.$refs.vueEditor.editor;
       quill.root.innerHTML = this.$store.state.draft.draftHistory[
         index
       ].content;
+      var now = moment()
+        .locale("zh-cn")
+        .format("YYYY-MM-DD");
+      this.time = now;
     },
     queryDestSearch(value, cb) {
       if (!value) {

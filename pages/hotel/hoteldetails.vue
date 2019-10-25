@@ -117,9 +117,9 @@
             text-color="#ff9900"
             score-template="{value}"
           ></el-rate>
-          <el-progress type="circle" :percentage="77" class="circle"></el-progress>
+          <el-progress type="circle" :percentage="70" class="circle"></el-progress>
           <el-progress type="circle" :percentage="80" class="circle"></el-progress>
-          <el-progress type="circle" :percentage="68" class="circle"></el-progress>
+          <el-progress type="circle" :percentage="88" class="circle"></el-progress>
         </div>
       </div>
     </div>
@@ -132,11 +132,12 @@ import HotelTable from "@/components/hotel/hotelTable";
 export default {
   data() {
     return {
-      details: {},
+      details: {
+      },
       activeName: "first",
       value: 0,
       longitude: "",
-      latitude: ""
+      latitude: "",
     };
   },
   methods: {
@@ -161,12 +162,11 @@ export default {
       this.value = data.stars;
       this.longitude = data.location.longitude;
       this.latitude = data.location.latitude;
-      console.log(this.details);
 
       // 高德地图
       window.onLoad = function() {
         var map = new AMap.Map("container", {
-          zoom:15,
+          zoom: 15,
           center: [118.8718107, 31.32846821]
         });
         var marker = new AMap.Marker({

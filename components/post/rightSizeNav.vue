@@ -6,11 +6,12 @@
       v-for="(item,index) in postsList"
       :key="index"
       @click="$router.push(`/post/detail?id=${item.id}`)"
-    >
-      <img :src="`${item.images[0]}`" alt />
+    > 
+      <img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3885376987,415548851&fm=11&gp=0.jpg" alt="" v-if="item.images.length==0">
+      <img :src="`${item.images[0]}`" alt v-if="item.images.length>0" />
       <div class="postContent">
         <p class="title">{{item.title}}</p>
-        <span class="time">{{item.created_at}} 阅读:{{item.watch}}</span>
+        <span class="time">{{item.created_at}} <em v-text="item.watch? `阅读:${item.watch}`:`阅读:0`"></em></span>
       </div>
     </div>
     <div class="flight">
@@ -57,6 +58,8 @@ export default {
     this.postsList.forEach(v => {
       v.created_at = moment(v.created_at).format(`YYYY-MM-DD`);
     });
+    console.log(this.postsList);
+    
   }
 };
 </script>
@@ -71,6 +74,7 @@ export default {
   .postBox {
     padding: 20px 0;
     border-top: 1px solid #999;
+    cursor: pointer;
     > img {
       width: 100px;
       height: 80px;

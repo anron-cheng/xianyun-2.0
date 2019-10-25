@@ -36,8 +36,8 @@
                 <div class="title"  
                 @click="$router.push('/post/detail?id='+postItem.id)" 
                 style="width:470px;">{{postItem.title}}</div>
-                <div class="content"  @click="$router.push('/post/detail?id='+postItem.id)" v-html="postItem.content">
-                    <!-- {{postItem.summary}} -->
+                <div class="content"  @click="$router.push('/post/detail?id='+postItem.id)" >
+                    {{postItem.summary}}
                 </div>
                 <el-row type="flex" class="row-bg userinfo" justify="space-between" >
                     <el-col :span="12" class="el-row is-align-middle el-row--flex">
