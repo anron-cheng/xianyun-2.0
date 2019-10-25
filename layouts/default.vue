@@ -1,6 +1,14 @@
 <template>
   <div>
     <!-- 头部组件 -->
+    <script
+      type="text/javascript"
+      src="https://webapi.amap.com/maps?v=1.4.15&key=5201586f697d302f2849a3297284913a"
+    ></script>
+    <script
+      src="https://webapi.amap.com/maps?v=1.4.15&key=5201586f697d302f2849a3297284913a&plugin=AMap.PlaceSearch"
+    ></script>
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1467162_wilr7pj52j.css" />
     <Header/>
 
     <!-- 内容占位组件,类似于router-view -->
