@@ -17,8 +17,7 @@
             :fetch-suggestions="queryDestSearch"
             placeholder="请搜索出发城市"
             @select="handleDestSelect"
-            v-model="draftList.destCity"
-            @blur="handleBlur(`dest`)"
+            v-model="draftList.city"
           ></el-autocomplete>
         </el-col>
       </el-row>
@@ -59,7 +58,7 @@ export default {
   name: "app",
   data() {
     return {
-      index:0,
+      index: 0,
       config: {
         uploadImage: {
           url: `${this.$axios.defaults.baseURL}/upload`,
@@ -80,28 +79,33 @@ export default {
 
       draftList: {
         title: "",
-        destCity: "",
-        content: "",
-        time:"",
-      }
+        city: "",
+        content: ""
+      },
+      time: "",
+      cities: []
     };
-  },moment(){
-    console.log()
   },
   components: {
     VueEditor
   },
   methods: {
     handleSave(index) {
-       // 自定义验证
+      const arr = this.$store.state.draft.draftHistory;
+      arr.forEach((item, index) => {
+        if (item.title === this.draftList.title) {
+          this.handleDel(index);
+        }
+      });
+      // 自定义验证
       const rules = {
         title: {
           message: "请输入标题",
           value: this.draftList.title
         },
-        destCity: {
+        city: {
           message: "请输入到达城市",
-          value: this.draftList.destCity
+          value: this.draftList.city
         }
       };
       let valid = true;
@@ -115,21 +119,24 @@ export default {
       });
       var quill = this.$refs.vueEditor.editor;
       this.draftList.content = quill.root.innerHTML;
-      // this.draftList.time=moment().locale('zh-cn').format('YYYY-MM-DD');
-      var now = moment().locale('zh-cn').format('YYYY-MM-DD');
-      this.draftList.time=now;
-      // console.log(this.draftList.time);
+      var now = moment()
+        .locale("zh-cn")
+        .format("YYYY-MM-DD");
+      this.draftList.time = now;
+      console.log(this.draftList);
       const goods = { ...this.draftList };
-      if(valid!=false){
+      if (valid != false) {
         this.$store.commit("draft/setHistory", goods);
-      };
+      }
       this.draftList.title = "";
-      this.draftList.destCity = "";
+      this.draftList.city = "";
       quill.root.innerHTML = "";
     },
     handlePublish() {
       var quill = this.$refs.vueEditor.editor;
       this.draftList.content = quill.root.innerHTML;
+      console.log(this.draftList);
+
       this.$axios({
         url: "/posts",
         method: "POST",
@@ -142,23 +149,22 @@ export default {
         if (message === "新增成功") {
           this.$message.success(message);
           this.draftList.title = "";
-          this.draftList.destCity = "";
+          this.draftList.city = "";
           quill.root.innerHTML = "";
         }
       });
-
     },
     handleEdit(index) {
       this.draftList.title = this.$store.state.draft.draftHistory[index].title;
-      this.draftList.destCity = this.$store.state.draft.draftHistory[index].destCity;
-      var now=moment().locale('zh-cn').format('YYYY-MM-DD');
-      this.draftList.time=now;
+      this.draftList.city = this.$store.state.draft.draftHistory[index].city;
+      var now = moment()
+        .locale("zh-cn")
+        .format("YYYY-MM-DD");
+      this.draftList.time = now;
       var quill = this.$refs.vueEditor.editor;
       quill.root.innerHTML = this.$store.state.draft.draftHistory[
         index
       ].content;
-      
-      this.$store.commit("draft/delHistory", index);
     },
     queryDestSearch(value, cb) {
       if (!value) {
@@ -180,13 +186,10 @@ export default {
       });
     },
     handleDestSelect(item) {
-      this.draftList.destCity = item.value;
+      this.draftList.city = item.value;
     },
     // type可能等于depart 或者 dest
-    handleBlur(type) {
-      if (this.cities.length === 0) return;
-      this.draftList[type + "City"] = this.cities[0].value;
-    },
+
     handleDel(index) {
       this.$store.commit("draft/delHistory", index);
     }
@@ -275,11 +278,11 @@ export default {
   zoom: 1;
 }
 .draft-list {
-  span:hover{
-    color:orangered;
+  span:hover {
+    color: orangered;
   }
-  .el-icon-edit:hover{
-    color:orangered;
+  .el-icon-edit:hover {
+    color: orangered;
   }
 }
 </style>

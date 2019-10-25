@@ -6,7 +6,7 @@ export const state = () => {
 
 export const mutations = {
     setHistory(state, data){
-        state.draftHistory.push(data);
+        state.draftHistory.unshift(data);
     },
     delHistory(state,index){
         state.draftHistory.splice(index,1)
