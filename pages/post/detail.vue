@@ -205,9 +205,11 @@ export default {
     },
     // 点击关注
     async userFollow() {
-      if(!this.isLogin) return this.userIslogin()
+      if(!this.isLogin){
+        this.userIslogin()
+        return
+      }   
       this.clickFollow =true
-      await this.userIslogin();
       const res = this.$axios(
         await {
           url: "/posts/star",
@@ -221,9 +223,11 @@ export default {
     },
     // 点击点赞
     async userLike() {
-      if(!this.isLogin) return this.userIslogin()
+      if(!this.isLogin){
+         this.userIslogin()
+         return
+      } 
       this.clickLike = true
-      await this.userIslogin();
       const res = this.$axios(
         await {
           url: "/posts/like",
