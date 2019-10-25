@@ -30,8 +30,9 @@
         <div class="search">
           <el-input
           placeholder="请输入想去的地方，比如：'广州'"
-          v-model="input1">
-          <i slot="suffix" class="el-input__icon el-icon-search" @click="handlerPost(input1)"></i>
+          v-model="value"
+         @keyup.enter.native="handlerPost(value)">
+          <i slot="suffix" class="el-input__icon el-icon-search" @click="handlerPost(value)"></i>
         </el-input>
         </div>
         <div class="city">推荐：
@@ -42,7 +43,7 @@
           >{{item}}</span></div>
         <div class="tuijian">
           <h4>推荐攻略</h4>
-          <el-button type="primary" @click="$router.push('/post/creat')"> 
+          <el-button type="primary" @click="$router.push('/post/create')"> 
             <i class="el-icon-edit"></i>
             <span>写游记</span>
           </el-button>
@@ -73,7 +74,7 @@ import PostList from '@/components/post/postList'
 export default {
   data(){
     return{
-      input1:'',
+      value:'',
       cityList:[],
       city:['广州','上海','北京'],
       postList:[],
@@ -88,7 +89,7 @@ export default {
   methods:{
     handlerPost(value){
       this.pageIndex = 1
-      this.input1 = value
+      this.value = value
       this.getPosts()
   },
   getPosts(){
@@ -96,8 +97,8 @@ export default {
         _start:(this.pageIndex-1)*this.pageSize,
         _limit:this.pageSize,
     }
-    if(this.input1){
-      params.city = this.input1
+    if(this.value){
+      params.city = this.value
     }
     this.$axios({
       url:'/posts',
